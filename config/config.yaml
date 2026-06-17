@@ -1,0 +1,25 @@
+typefully:
+  social_set_id: "310888"  # @kaishain_nigemichi / 会社員の逃げ道
+  platform: "threads"
+
+posting:
+  timezone: "Asia/Tokyo"
+  post_count_per_day: 5
+  schedule_times:
+    - "07:00"
+    - "10:00"
+    - "13:00"
+    - "18:00"
+    - "20:00"
+
+content:
+  source: "csv"       # "csv" または "json"
+  csv_path: "posts/posts.csv"
+  json_path: "posts/posts.json"
+
+logging:
+  log_path: "logs/scheduler.log"
+  posted_log_path: "logs/posted_log.csv"
+
+duplicate_check:
+  similarity_threshold: 0.85  # 0.0〜1.0 / 1.0=完全一致のみ弾く
