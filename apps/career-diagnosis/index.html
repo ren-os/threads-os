@@ -21,7 +21,12 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-    gtag('config', 'G-R3JPL9E7TM', { send_page_view: true });
+    // URLに ?debug_mode=1 がある場合、GA4 DebugView を有効化
+    var _gaDebug = new URLSearchParams(location.search).get('debug_mode') === '1';
+    gtag('config', 'G-R3JPL9E7TM', {
+      send_page_view: true,
+      debug_mode: _gaDebug
+    });
   </script>
 </head>
 <body>

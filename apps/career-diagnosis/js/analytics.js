@@ -38,24 +38,21 @@ function getUtmParams() {
   return result;
 }
 
-/**
- * GA4カスタムイベントを送信する。
- * UTMパラメータを自動付与するため、直接gtag()を呼ばずこの関数を使う。
- * @param {string} eventName
- * @param {Object} extra - 追加パラメータ
- */
 export function trackEvent(eventName, extra = {}) {
-  if (typeof window.gtag !== 'function') return;
-  window.gtag('event', eventName, {
+  if (typeof window.gtag !== 'function') {
+    console.warn('[GA4] gtag not ready, skipping:', eventName);
+    return;
+  }
+  const isDebug = new URLSearchParams(window.location.search).get('debug_mode') === '1';
+  const params = {
     ...getUtmParams(),
+    ...(isDebug ? { debug_mode: true } : {}),
     ...extra,
-  });
+  };
+  if (isDebug) console.log('[GA4]', eventName, params);
+  window.gtag('event', eventName, params);
 }
 
-/**
- * アナリティクス初期化。DOMContentLoaded後に呼ぶ。
- * URLのUTMパラメータをsessionStorageに保存する。
- */
 export function initAnalytics() {
   saveUtmParams();
 }
