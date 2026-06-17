@@ -195,7 +195,7 @@ function setupShare(result) {
 // CTA
 // ===========================
 function setupCtaButtons() {
-  const lineUrl = 'https://lin.ee/XXXXXXX'; // TODO: 実際のLINE URLに差し替える
+  const lineUrl = 'https://lin.ee/WqfZFyd';
 
   $('cta-btn').onclick = () => window.open(lineUrl, '_blank', 'noopener');
   $('sticky-cta-btn').onclick = () => window.open(lineUrl, '_blank', 'noopener');
