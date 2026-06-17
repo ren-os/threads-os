@@ -155,7 +155,7 @@ function showResult() {
   $('result-description').textContent = result.description;
 
   const ctaBtnText = $('cta-btn-text');
-  if (ctaBtnText) ctaBtnText.textContent = result.cta || 'LINEで無料相談する';
+  if (ctaBtnText) ctaBtnText.textContent = '無料サポートを受け取る';
 
   const adviceList = $('advice-list');
   adviceList.innerHTML = '';
@@ -165,30 +165,11 @@ function showResult() {
     adviceList.appendChild(li);
   });
 
-  setupShare(result);
   setupCtaButtons();
   showScreen('screen-result');
 
   // progress 100%
   $('progress-fill').style.width = '100%';
-}
-
-// ===========================
-// Share
-// ===========================
-function setupShare(result) {
-  const shareText = `【転職タイプ診断】\n「${result.title}」でした！\n\nあなたも診断してみて👇`;
-  const pageUrl   = location.href;
-
-  $('share-threads').onclick = () => {
-    const url = `https://www.threads.net/intent/post?text=${encodeURIComponent(shareText + '\n' + pageUrl)}`;
-    window.open(url, '_blank', 'noopener');
-  };
-
-  $('share-x').onclick = () => {
-    const url = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}&url=${encodeURIComponent(pageUrl)}`;
-    window.open(url, '_blank', 'noopener');
-  };
 }
 
 // ===========================
