@@ -21,6 +21,14 @@ function showScreen(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   $(id).classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  // sticky CTA は結果画面のみ
+  const stickyCta = $('sticky-cta');
+  if (id === 'screen-result') {
+    stickyCta.classList.remove('hidden');
+  } else {
+    stickyCta.classList.add('hidden');
+  }
 }
 
 // ===========================
@@ -44,6 +52,17 @@ function updateProgress() {
   $('progress-fill').style.width = pct + '%';
   $('progress-current').textContent = done;
   $('progress-total').textContent   = total;
+
+  // step dots
+  const stepsEl = $('progress-steps');
+  stepsEl.innerHTML = '';
+  for (let i = 0; i < total; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'progress-step-dot';
+    if (i < done) dot.classList.add('done');
+    else if (i === done) dot.classList.add('active');
+    stepsEl.appendChild(dot);
+  }
 }
 
 // ===========================
@@ -52,8 +71,7 @@ function updateProgress() {
 function renderQuestion() {
   const q = questions[currentIndex];
 
-  $('question-number').textContent = `Q${currentIndex + 1} / ${questions.length}`;
-  $('question-text').textContent   = q.text;
+  $('question-text').textContent = q.text;
 
   const list = $('options-list');
   list.innerHTML = '';
@@ -74,16 +92,24 @@ function renderQuestion() {
     list.appendChild(btn);
   });
 
+  const prevBtn = $('prev-btn');
+  prevBtn.disabled = currentIndex === 0;
+
   updateProgress();
-  $('next-btn').disabled = !answers.find(a => a.questionId === q.id);
 }
 
 // ===========================
-// Option selection
+// Option selection → 自動遷移
 // ===========================
 function onOptionSelect(btn, questionId) {
-  document.querySelectorAll('.option-btn').forEach(b => b.classList.remove('selected'));
-  btn.classList.add('selected');
+  // 連打防止
+  if (btn.classList.contains('selecting')) return;
+
+  document.querySelectorAll('.option-btn').forEach(b => {
+    b.classList.remove('selected');
+    b.disabled = true;
+  });
+  btn.classList.add('selecting');
 
   // answers 更新
   const idx = answers.findIndex(a => a.questionId === questionId);
@@ -91,21 +117,20 @@ function onOptionSelect(btn, questionId) {
   if (idx >= 0) answers[idx] = entry;
   else answers.push(entry);
 
-  $('next-btn').disabled = false;
+  // 300ms後に自動遷移
+  setTimeout(() => {
+    if (currentIndex < questions.length - 1) {
+      currentIndex++;
+      renderQuestion();
+    } else {
+      showLoading();
+    }
+  }, 300);
 }
 
 // ===========================
-// Navigation
+// Back navigation
 // ===========================
-function goNext() {
-  if (currentIndex < questions.length - 1) {
-    currentIndex++;
-    renderQuestion();
-  } else {
-    showLoading();
-  }
-}
-
 function goPrev() {
   if (currentIndex > 0) {
     currentIndex--;
@@ -128,7 +153,9 @@ function showResult() {
   $('result-emoji').textContent       = result.emoji;
   $('result-title').textContent       = result.title;
   $('result-description').textContent = result.description;
-  $('cta-btn').textContent            = result.cta;
+
+  const ctaBtnText = $('cta-btn-text');
+  if (ctaBtnText) ctaBtnText.textContent = result.cta || 'LINEで無料相談する';
 
   const adviceList = $('advice-list');
   adviceList.innerHTML = '';
@@ -139,8 +166,10 @@ function showResult() {
   });
 
   setupShare(result);
+  setupCtaButtons();
   showScreen('screen-result');
-  updateProgress();
+
+  // progress 100%
   $('progress-fill').style.width = '100%';
 }
 
@@ -163,12 +192,13 @@ function setupShare(result) {
 }
 
 // ===========================
-// CTA click
+// CTA
 // ===========================
-function onCtaClick() {
-  // プロフィールリンクへ遷移（LINE登録先）
-  // TODO: 実際のLINE URLに差し替える
-  window.open('https://lin.ee/XXXXXXX', '_blank', 'noopener');
+function setupCtaButtons() {
+  const lineUrl = 'https://lin.ee/XXXXXXX'; // TODO: 実際のLINE URLに差し替える
+
+  $('cta-btn').onclick = () => window.open(lineUrl, '_blank', 'noopener');
+  $('sticky-cta-btn').onclick = () => window.open(lineUrl, '_blank', 'noopener');
 }
 
 // ===========================
@@ -192,9 +222,7 @@ async function init() {
     renderQuestion();
   });
 
-  $('next-btn').addEventListener('click', goNext);
   $('prev-btn').addEventListener('click', goPrev);
-  $('cta-btn').addEventListener('click', onCtaClick);
   $('retry-btn').addEventListener('click', retryDiagnosis);
 }
 
