@@ -1,5 +1,6 @@
 # 機密情報・環境変数
 .env
+config/ga4_service_account.json
 
 # 投稿ストック（外部非公開）
 posts/posts.csv
